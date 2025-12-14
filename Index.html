@@ -95,7 +95,11 @@ async function send() {
       body: JSON.stringify({ messages: history.slice(-6) })
     });
 
-    const data = await res.json();
+   const data = await res.json();
+
+if (!data.reply) {
+  throw new Error("Invalid AI response");
+}
 
     // Remove thinking message
     thinkingMsg.remove();
