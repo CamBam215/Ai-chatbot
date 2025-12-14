@@ -83,7 +83,7 @@ async function send() {
   add("<b>You:</b> " + msg, "user");
   history.push({ role:"user", content:msg });
 
-  const res = await fetch("https://broken-grass-7903.binghamcamden.workers.dev", {
+  const res = await fetch("https://*-broken-grass-7903.binghamcamden.workers.dev", {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ messages: history })
