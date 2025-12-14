@@ -33,6 +33,7 @@ header {
 .msg { margin-bottom:10px; }
 .user { color:#38bdf8; }
 .ai { color:#a5b4fc; }
+.thinking { color:#94a3b8; font-style:italic; }
 footer { display:flex; }
 input {
   flex:1;
@@ -73,6 +74,7 @@ function add(text, cls) {
   d.innerHTML = text;
   chat.appendChild(d);
   chat.scrollTop = chat.scrollHeight;
+  return d;
 }
 
 async function send() {
@@ -81,19 +83,30 @@ async function send() {
   input.value = "";
 
   add("<b>You:</b> " + msg, "user");
-  history.push({ role:"user", content:msg });
+  history.push({ role: "user", content: msg });
 
-  const res = await fetch("https://broken-grass-7903.binghamcamden.workers.dev/", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ messages: history })
-  });
+  // Thinking indicator
+  const thinkingMsg = add("<i>AI is thinking...</i>", "thinking");
 
-  const data = await res.json();
-  const reply = data.reply;
+  try {
+    const res = await fetch("https://broken-grass-7903.binghamcamden.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: history.slice(-6) })
+    });
 
-  history.push({ role:"assistant", content:reply });
-  add("<b>AI:</b> " + reply, "ai");
+    const data = await res.json();
+
+    // Remove thinking message
+    thinkingMsg.remove();
+
+    history.push({ role: "assistant", content: data.reply });
+    add("<b>AI:</b> " + data.reply, "ai");
+
+  } catch (err) {
+    thinkingMsg.remove();
+    add("<b>AI:</b> Sorry, something went wrong.", "ai");
+  }
 }
 
 add("<b>AI:</b> Hello! I'm powered by real AI.", "ai");
